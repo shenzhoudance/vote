@@ -15,10 +15,13 @@ git push -u origin master
 将专案推送到云端代码管理
 
 heroku new
-heroku master push
+git push heroku master
+heroku run rake db:migrate
+heroku open
 将本地的代码推送到云端服务器，完成产品的全球化访问;
-
-
+```
+# 对于产品体系的思考
+```
 (1)在全球化访问的过程中，就是一个数据化管理和空间化的存储问题
 (2)数据的整理就是有价值的财富，云端服务所形成的使用价值就是价值；
 (3)在单位时间里面产品价值交换的频率越快，云端服务的频次越高；
@@ -36,4 +39,55 @@ rake db:migrate
 # 添加一个首页的路由
 ```
 root 'topics#index'
+```
+
+# 对于每一笔资料完成投票
+rails generate model newvote topic_id:integer
+rake db:migrate
+
+# 专案的数据和投票对接
+app/models/topic.rb
+```
+class Topic < ApplicationRecord
+  has_many :newvotes, dependent: :destroy
+end
+```
+app/models/newvote.rb
+```
+class Newvote < ApplicationRecord
+  belongs_to :topic
+end
+```
+
+增加 controller 的控制器的代码
+```
+<p id="notice"><%= notice %></p>
+
+<h1>Topics</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @topics.each do |topic| %>
+      <tr>
+        <td><%= link_to topic.title, topic %></td>
+        <td><%= topic.description %></td>
+        <td><%= topic.newvotes.count %></td>
+        <td><%= button_to '赞赏', upvote_topic_path(topic) , method: :opst %></td>
+        <td><%= link_to '删除', topic, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Topic', new_topic_path %>
 ```
